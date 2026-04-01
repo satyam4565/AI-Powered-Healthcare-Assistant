@@ -1,0 +1,16 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Environment
+.env
+credentials.json
+token.json
+
+# Node
+node_modules/
+dist/
+
+# Misc
+.DS_Store
