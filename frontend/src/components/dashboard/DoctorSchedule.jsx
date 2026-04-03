@@ -1,40 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Clock, Save, Loader2 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/Card';
+import { Clock } from 'lucide-react';
+import { Card } from '../ui/Card';
+import { Button } from '../ui/Button';
 import { getDoctorAvailability, updateDoctorAvailability } from '../../services/api';
+import toast from 'react-hot-toast';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-const DEFAULT_START = '09:00:00';
-const DEFAULT_END = '17:00:00';
 
 export const DoctorSchedule = () => {
   const [schedule, setSchedule] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [message, setMessage] = useState('');
 
-  // Load existing schedule on mount
   useEffect(() => {
     const loadSchedule = async () => {
       try {
         const data = await getDoctorAvailability();
         const existingSchedule = data.schedule || [];
-        
-        // Merge existing data with our 7-day template
         const fullWeek = DAYS.map(day => {
           const existing = existingSchedule.find(s => s.day_of_week === day);
           return existing ? { ...existing } : { 
             day_of_week: day, 
             is_working: false, 
-            start_time: DEFAULT_START, 
-            end_time: DEFAULT_END 
+            start_time: '09:00:00', 
+            end_time: '17:00:00' 
           };
         });
-        
         setSchedule(fullWeek);
       } catch (error) {
-        console.error("Failed to load schedule", error);
+        toast.error("Failed to load schedule");
       } finally {
         setIsLoading(false);
       }
@@ -50,53 +45,40 @@ export const DoctorSchedule = () => {
 
   const handleTimeChange = (index, field, value) => {
     const newSchedule = [...schedule];
-    // Ensure the time has seconds for the backend (HH:MM:SS)
     newSchedule[index][field] = value.length === 5 ? `${value}:00` : value;
     setSchedule(newSchedule);
   };
 
   const handleSave = async () => {
     setIsSaving(true);
-    setMessage('');
     try {
       await updateDoctorAvailability(schedule);
-      setMessage('Schedule saved successfully! The AI will now respect these hours.');
-      setTimeout(() => setMessage(''), 4000);
+      toast.success('Weekly schedule saved successfully');
     } catch (error) {
-      setMessage('Error saving schedule.');
+      toast.error('Error saving schedule');
     } finally {
       setIsSaving(false);
     }
   };
 
-  if (isLoading) return <div className="p-4 text-slate-400">Loading schedule settings...</div>;
+  if (isLoading) return <div className="p-4 text-slate-400">Loading schedule...</div>;
 
   return (
-    <Card className="mt-6 border-indigo-500/20 bg-slate-800/40">
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <div>
-            <CardTitle className="text-indigo-300 flex items-center gap-2">
-              <Clock className="w-5 h-5" /> Weekly Working Hours
-            </CardTitle>
-            <CardDescription>Set when the AI can book your appointments.</CardDescription>
-          </div>
-          <button 
-            onClick={handleSave}
-            disabled={isSaving}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
-          >
-            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            Save Changes
-          </button>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-2">
+    <Card className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+          <Clock size={18} className="text-indigo-400" />
+          Weekly Scheduler
+        </h3>
+        <Button onClick={handleSave} isLoading={isSaving} size="sm">
+          Save Schedule
+        </Button>
+      </div>
+
+      <div className="space-y-3">
         {schedule.map((day, index) => (
-          <div key={day.day_of_week} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-slate-900/50 border border-slate-700/50 gap-4">
-            
-            {/* Day Toggle */}
-            <label className="flex items-center cursor-pointer gap-3 min-w-[120px]">
+          <div key={day.day_of_week} className={`flex items-center justify-between p-4 rounded-xl border transition-colors ${day.is_working ? 'bg-slate-800/60 border-indigo-500/30' : 'bg-slate-900/30 border-slate-800'}`}>
+            <label className="flex items-center cursor-pointer gap-4 w-1/3">
               <div className="relative">
                 <input 
                   type="checkbox" 
@@ -104,39 +86,32 @@ export const DoctorSchedule = () => {
                   checked={day.is_working}
                   onChange={() => handleToggle(index)}
                 />
-                <div className={`block w-10 h-6 rounded-full transition-colors ${day.is_working ? 'bg-indigo-500' : 'bg-slate-700'}`}></div>
-                <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${day.is_working ? 'transform translate-x-4' : ''}`}></div>
+                <div className={`block w-12 h-6 rounded-full transition-colors ${day.is_working ? 'bg-indigo-600' : 'bg-slate-700'}`}></div>
+                <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${day.is_working ? 'transform translate-x-6' : ''}`}></div>
               </div>
-              <span className={`font-medium ${day.is_working ? 'text-slate-200' : 'text-slate-500'}`}>
+              <span className={`font-medium ${day.is_working ? 'text-white' : 'text-slate-500'}`}>
                 {day.day_of_week}
               </span>
             </label>
 
-            {/* Time Pickers */}
-            <div className={`flex items-center gap-2 transition-opacity ${day.is_working ? 'opacity-100' : 'opacity-30 pointer-events-none'}`}>
+            <div className={`flex items-center gap-3 transition-opacity ${day.is_working ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
               <input 
                 type="time" 
                 value={day.start_time?.substring(0, 5) || "09:00"} 
                 onChange={(e) => handleTimeChange(index, 'start_time', e.target.value)}
-                className="bg-slate-800 border border-slate-600 rounded px-2 py-1 text-sm text-slate-200 focus:ring-1 focus:ring-indigo-500 outline-none"
+                className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors"
               />
-              <span className="text-slate-500 text-sm">to</span>
+              <span className="text-slate-500">—</span>
               <input 
                 type="time" 
                 value={day.end_time?.substring(0, 5) || "17:00"} 
                 onChange={(e) => handleTimeChange(index, 'end_time', e.target.value)}
-                className="bg-slate-800 border border-slate-600 rounded px-2 py-1 text-sm text-slate-200 focus:ring-1 focus:ring-indigo-500 outline-none"
+                className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors"
               />
             </div>
-
           </div>
         ))}
-        {message && (
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-emerald-400 mt-4 text-center">
-            {message}
-          </motion.p>
-        )}
-      </CardContent>
+      </div>
     </Card>
   );
 };

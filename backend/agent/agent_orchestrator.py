@@ -23,8 +23,9 @@ MODELS = [
 ]
 
 _REQUIRED_TOOL_FIELDS = {
-    "book_appointment": ("doctor_name", "date", "time", "patient_name", "email"),
-    "check_availability": ("doctor_name", "date", "time", "patient_name", "email"),
+    # "book_appointment": ("doctor_name", "date", "time", "patient_name", "email"),
+    "book_appointment": ("doctor_name", "date", "time"),
+    # "check_availability": ("doctor_name", "date", "time", "patient_name", "email"),
 }
 
 
@@ -198,19 +199,12 @@ IMPORTANT:
 """
             system_msg_content += """
 
-CRITICAL RULES:
-- IF THE LAST MESSAGE IS A TOOL RESPONSE, YOU MUST SUMMARIZE IT IN PLAIN TEXT. DO NOT OUTPUT JSON AGAIN.
-- ALWAYS use tools for:
-  - checking availability
-  - booking appointments
-- NEVER guess availability
-- NEVER respond with plain text when booking is requested
-- ALWAYS pass:
-  doctor_name, date, time, patient_name, email
-- DO NOT use default values
-- DO NOT hallucinate
-
-If booking is requested -> MUST call tool.
+CRITICAL BOOKING FLOW RULES:
+1. NEVER call `book_appointment` right away.
+2. FIRST, use `check_availability` or `get_doctor_directory` to see who is free and when.
+3. Present the available slots to the user and ASK them which time they prefer.
+4. ONLY call `book_appointment` AFTER the user has explicitly confirmed the specific time they want.
+5. IF THE LAST MESSAGE IS A TOOL RESPONSE, YOU MUST SUMMARIZE IT IN PLAIN TEXT. DO NOT OUTPUT JSON AGAIN.
 """
 
         messages = [{"role": "system", "content": system_msg_content}] + current_history

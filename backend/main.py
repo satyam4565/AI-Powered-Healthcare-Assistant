@@ -102,11 +102,22 @@ async def chat_endpoint(req: ChatRequest, current_user: dict = Depends(get_curre
             detail=f"Chat is unavailable because agent dependencies failed to load: {_agent_import_error}",
         )
     try:
+        # Get the final string reply from the agent
         reply = await process_chat(
             session_id=req.session_id,
             message=req.message,
             user=current_user,
         )
+        
+        # SAFETY NET: Force save the final reply to the database as an 'assistant' message
+        # This ensures that whatever text is sent to the React frontend is permanently saved
+        await context_manager.add_message(
+            req.session_id, 
+            int(current_user["user_id"]), 
+            current_user["role"], 
+            {"role": "assistant", "content": reply}
+        )
+
         return ChatResponse(reply=reply)
     except Exception as e:
         print("❌ Chat Error:", str(e))
@@ -127,11 +138,19 @@ async def get_chat_history(session_id: str, current_user: dict = Depends(get_cur
     """Fetch persistent chat history from PostgreSQL."""
     history = await context_manager.get_session_history(session_id)
     
-    # We filter out "system" and "tool" messages so the UI only displays User and Assistant chats
-    display_history = [
-        msg for msg in history 
-        if msg.get("role") in ["user", "assistant"] and msg.get("content")
-    ]
+    display_history = []
+    last_text = None
+    
+    for msg in history:
+        # We only care about user and assistant messages that actually have text
+        if msg.get("role") in ["user", "assistant"] and msg.get("content"):
+            current_text = msg.get("content").strip()
+            
+            # Anti-Duplicate Check: Only add it if it doesn't exactly match the previous message
+            if current_text != last_text:
+                display_history.append(msg)
+                last_text = current_text
+                
     return {"history": display_history}
 
 

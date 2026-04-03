@@ -1,11 +1,11 @@
 import asyncio
 from db.db import AsyncSessionLocal
-from db.models import Patient
+from db.models import Doctor
 from sqlalchemy import select
 
 async def show_me_the_data():
     async with AsyncSessionLocal() as session:
-        result = await session.execute(select(Patient))
+        result = await session.execute(select(Doctor))
         users = result.scalars().all()
         
         print("\n--- ALL REGISTERED USERS ---")

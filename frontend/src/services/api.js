@@ -137,3 +137,18 @@ export const updateDoctorAvailability = async (schedule) => {
     throw new Error(getFriendlyError(error, 'Failed to update schedule.'));
   }
 };
+
+export const updateDoctorProfile = async (bio) => {
+  try {
+    // We mock this endpoint since it doesn't exist yet, but we structure it 
+    // consistently with other API contracts. 
+    // In reality, this would be: await api.post('/doctor/profile', { bio }, { headers: getAuthHeader() });
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({ success: true, bio });
+      }, 500);
+    });
+  } catch (error) {
+    throw new Error(getFriendlyError(error, 'Failed to update bio.'));
+  }
+};

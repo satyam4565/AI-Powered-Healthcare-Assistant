@@ -1,18 +1,23 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, User, Stethoscope, ArrowRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
+import { SegmentedControl } from '../ui/SegmentedControl';
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
-  const [role, setRole] = useState('patient'); // 'patient' or 'doctor'
+  const [role, setRole] = useState('patient');
   const [formData, setFormData] = useState({ name: '', email: '', password: '', specialization: 'General' });
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
     
     const endpoint = isLogin ? '/api/auth/login' : '/api/auth/signup';
     const payload = isLogin 
@@ -32,9 +37,7 @@ export default function Login() {
 
       if (isLogin) {
         login(data.user, data.access_token);
-        // App.jsx will automatically handle routing once the state updates!
       } else {
-        // If signup success, instantly log them in
         const loginRes = await fetch('http://localhost:8000/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -45,99 +48,120 @@ export default function Login() {
       }
     } catch (err) {
       setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 font-sans text-slate-100">
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 font-sans text-slate-100 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black overflow-hidden relative">
+      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-purple-900/20 rounded-full blur-[120px] pointer-events-none" />
+
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-slate-800/50 backdrop-blur-xl rounded-2xl border border-slate-700 p-8 shadow-2xl"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ 
+          opacity: 1, 
+          y: 0,
+          x: error ? [-10, 10, -5, 5, 0] : 0 
+        }}
+        transition={{ duration: 0.4 }}
+        className="w-full max-w-md bg-slate-900/40 backdrop-blur-2xl rounded-3xl border border-white/10 p-8 shadow-[0_0_40px_rgba(0,0,0,0.5)] relative z-10"
       >
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-500/20 text-indigo-400 mb-4">
+        <div className="text-center mb-8 relative">
+          <motion.div 
+            initial={{ scale: 0.8 }}
+            animate={{ scale: 1 }}
+            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/30 mb-5"
+          >
             <Stethoscope size={32} />
-          </div>
-          <h2 className="text-2xl font-semibold tracking-tight">Smart Doctor Assistant</h2>
-          <p className="text-slate-400 mt-2 text-sm">
+          </motion.div>
+          <h2 className="text-3xl font-bold tracking-tight text-white mb-2">Smart Assistant</h2>
+          <p className="text-slate-400 text-sm">
             {isLogin ? 'Welcome back. Please enter your details.' : 'Create your account to get started.'}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {!isLogin && (
-            <>
-              <div className="flex p-1 bg-slate-900/50 rounded-lg mb-6">
-                <button
-                  type="button"
-                  onClick={() => setRole('patient')}
-                  className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${role === 'patient' ? 'bg-indigo-500 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}
-                >
-                  Patient
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRole('doctor')}
-                  className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${role === 'doctor' ? 'bg-indigo-500 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}
-                >
-                  Doctor
-                </button>
-              </div>
+          <AnimatePresence mode="popLayout">
+            {!isLogin && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="space-y-4"
+              >
+                <SegmentedControl 
+                  options={[
+                    { label: 'Patient', value: 'patient' },
+                    { label: 'Doctor', value: 'doctor' }
+                  ]}
+                  selected={role}
+                  onChange={setRole}
+                />
 
-              <div className="relative">
-                <User className="absolute left-3 top-3 h-5 w-5 text-slate-500" />
-                <input
+                <Input
+                  icon={User}
                   type="text"
                   placeholder="Full Name"
                   required
-                  className="w-full bg-slate-900/50 border border-slate-700 rounded-lg py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
                 />
-              </div>
-            </>
-          )}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          <div className="relative">
-            <Mail className="absolute left-3 top-3 h-5 w-5 text-slate-500" />
-            <input
-              type="email"
-              placeholder="Email address"
-              required
-              className="w-full bg-slate-900/50 border border-slate-700 rounded-lg py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-              onChange={(e) => setFormData({...formData, email: e.target.value})}
-            />
-          </div>
+          <Input
+            icon={Mail}
+            type="email"
+            placeholder="Email address"
+            required
+            value={formData.email}
+            onChange={(e) => setFormData({...formData, email: e.target.value})}
+          />
 
-          <div className="relative">
-            <Lock className="absolute left-3 top-3 h-5 w-5 text-slate-500" />
-            <input
-              type="password"
-              placeholder="Password"
-              required
-              className="w-full bg-slate-900/50 border border-slate-700 rounded-lg py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-              onChange={(e) => setFormData({...formData, password: e.target.value})}
-            />
-          </div>
+          <Input
+            icon={Lock}
+            type="password"
+            placeholder="Password"
+            required
+            value={formData.password}
+            onChange={(e) => setFormData({...formData, password: e.target.value})}
+          />
 
-          {error && (
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-400 text-sm text-center">
-              {error}
-            </motion.p>
-          )}
+          <AnimatePresence>
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                exit={{ opacity: 0, y: -10 }}
+                className="bg-rose-500/10 border border-rose-500/50 text-rose-400 text-sm p-3 rounded-xl text-center"
+              >
+                {error}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          <button
+          <Button
             type="submit"
-            className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-lg transition-colors mt-6"
+            className="w-full mt-2"
+            isLoading={isLoading}
           >
             {isLogin ? 'Sign In' : 'Create Account'}
-            <ArrowRight size={18} />
-          </button>
+            {!isLoading && <ArrowRight size={18} />}
+          </Button>
         </form>
 
-        <p className="text-center text-slate-400 text-sm mt-6">
+        <p className="text-center text-slate-400 text-sm mt-8">
           {isLogin ? "Don't have an account? " : "Already have an account? "}
-          <button onClick={() => setIsLogin(!isLogin)} className="text-indigo-400 hover:text-indigo-300 font-medium">
+          <button 
+            onClick={() => {
+              setIsLogin(!isLogin);
+              setError('');
+            }} 
+            className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
+          >
             {isLogin ? 'Sign up' : 'Log in'}
           </button>
         </p>

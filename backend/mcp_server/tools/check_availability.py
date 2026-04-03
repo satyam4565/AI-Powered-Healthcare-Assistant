@@ -6,16 +6,34 @@ from datetime import datetime, timedelta
 async def check_availability(
     user_id: int,
     role: str,
-    doctor_name: str,
-    date: str
+    date: str,               # Moved up because it is required!
+    doctor_name: str = ""    # Made optional and moved to the bottom!
 ) -> str:
     """ALWAYS CALL THIS TOOL FIRST WHEN A USER ASKS FOR TIMINGS, SCHEDULES, OR AVAILABILITY. It returns the exact open slots for a doctor on a specific day."""
     async with AsyncSessionLocal() as session:
         # Basic Validation
-        if not doctor_name: return "Error: doctor_name is required"
         if not date: return "Error: date is required"
 
         role_norm = (role or "").strip().lower()
+        
+        # =====================================================================
+        # 🚀 NEW LOGIC: IF DOCTOR NAME IS MISSING, RETURN THE DIRECTORY
+        # =====================================================================
+        if not doctor_name or not doctor_name.strip():
+            # If a patient asks "Who is available?", just return all doctors
+            if role_norm != "doctor":
+                doc_result = await session.execute(select(Doctor))
+                all_doctors = doc_result.scalars().all()
+                
+                if not all_doctors:
+                    return "There are no doctors currently in the directory."
+                
+                names_list = ", ".join([f"Dr. {d.name}" for d in all_doctors])
+                return f"Tell the user we have the following doctors: {names_list}. Ask them which doctor's schedule they would like to check for {date}."
+        
+        # =====================================================================
+        # EXISTING LOGIC: IF DOCTOR NAME IS PROVIDED, CHECK THEIR SCHEDULE
+        # =====================================================================
         
         # 1. Resolve Doctor (With Fuzzy Search)
         if role_norm == "doctor":
