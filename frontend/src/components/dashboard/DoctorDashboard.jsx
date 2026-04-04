@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Activity, Sparkles } from 'lucide-react'; // Added Sparkles icon
+import { Users, Activity, Sparkles, Calendar } from 'lucide-react'; // Added Calendar icon
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { DoctorSchedule } from './DoctorSchedule';
 import toast from 'react-hot-toast';
 import { updateDoctorProfile } from '../../services/api';
-import { useApp } from '../../context/AppContext'; // Imported to use the chat function
+import { useApp } from '../../context/AppContext';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -19,13 +19,13 @@ const itemVariants = {
 };
 
 export const DoctorDashboard = ({ data }) => {
-  const stats = data?.stats || { today_patients: 0, success_rate: '0%' };
-  const allAppointments = data?.appointments || []; // Using all appointments instead of just today's
-  const { handleSendMessage } = useApp(); // Pulling in the invisible chat function
+  const stats = data?.stats || { today_patients: 0 };
+  const allAppointments = data?.appointments || []; 
+  const { handleSendMessage } = useApp(); 
 
   const [bio, setBio] = useState('General Practitioner with 10+ years of experience.');
   const [isSavingBio, setIsSavingBio] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false); // State for the AI button
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // --- LOGIC: Filter for Future Appointments ---
   const futureAppointments = allAppointments.filter(appt => {
@@ -56,9 +56,6 @@ export const DoctorDashboard = ({ data }) => {
     setIsGenerating(true);
     toast('Asking AI to generate report...', { icon: '🤖' });
     try {
-      // This silently sends the message to your FastAPI backend
-      // The backend calls the LLM, the LLM calls the tool, and the backend returns the ||REPORT|| string
-      // Your AppContext will catch the ||REPORT|| string and trigger the final toast notification!
       await handleSendMessage("Give me a summary report of my patients.");
     } catch (error) {
       toast.error("Failed to generate report.");
@@ -72,7 +69,7 @@ export const DoctorDashboard = ({ data }) => {
       <div className="flex items-center justify-between mt-2">
         <h2 className="text-2xl font-bold text-white">Command Center</h2>
         <div className="flex items-center gap-4">
-          {/* NEW: AI Summary Button */}
+          {/* AI Summary Button */}
           <Button
             onClick={handleGenerateSummary}
             isLoading={isGenerating}
@@ -105,15 +102,17 @@ export const DoctorDashboard = ({ data }) => {
             </div>
           </Card>
         </motion.div>
+        
+        {/* CHANGED: Success Rate replaced with Upcoming This Week */}
         <motion.div variants={itemVariants}>
           <Card className="p-6 bg-purple-900/10 border-purple-500/20">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-slate-400 text-sm font-medium mb-1 uppercase tracking-wider">Success Rate</p>
-                <h3 className="text-4xl font-bold text-white">{stats.success_rate}</h3>
+                <p className="text-slate-400 text-sm font-medium mb-1 uppercase tracking-wider">Upcoming This Week</p>
+                <h3 className="text-4xl font-bold text-white">{futureAppointments.length}</h3>
               </div>
               <div className="p-3 bg-purple-500/20 text-purple-400 rounded-xl">
-                <Activity size={24} />
+                <Calendar size={24} />
               </div>
             </div>
           </Card>
@@ -165,7 +164,6 @@ export const DoctorDashboard = ({ data }) => {
                       <div>
                         <p className="font-semibold text-slate-100">{apt.patient?.name || apt.patient_name || 'Patient'}</p>
                         <p className="text-xs text-indigo-400 mt-0.5">
-                          {/* UPDATED: Now shows both Date and Time */}
                           {new Date(apt.time).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} @ {new Date(apt.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>

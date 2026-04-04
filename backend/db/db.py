@@ -33,6 +33,8 @@ async def clear_appointments():
 
 
 async def seed_users_if_missing():
+    return
+
     async with AsyncSessionLocal() as session:
         from sqlalchemy import select
 

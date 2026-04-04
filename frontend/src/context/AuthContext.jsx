@@ -9,8 +9,8 @@ export const AuthProvider = ({ children }) => {
 
   // Load user from local storage on startup so they stay logged in
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    const storedToken = localStorage.getItem('token');
+    const storedUser = sessionStorage.getItem('user');
+    const storedToken = sessionStorage.getItem('token');
     
     if (storedUser && storedToken) {
       setUser(JSON.parse(storedUser));
@@ -22,16 +22,16 @@ export const AuthProvider = ({ children }) => {
   const login = (userData, accessToken) => {
     setUser(userData);
     setToken(accessToken);
-    localStorage.setItem('user', JSON.stringify(userData));
-    localStorage.setItem('token', accessToken);
+    sessionStorage.setItem('user', JSON.stringify(userData));
+    sessionStorage.setItem('token', accessToken);
   };
 
   const logout = () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    localStorage.removeItem('chat_session'); // Clear AI memory on logout
+    sessionStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('chat_session'); // Clear AI memory on logout
   };
 
   return (

@@ -12,8 +12,6 @@ SCOPES = ["https://www.googleapis.com/auth/calendar.events"]
 def get_calendar_service():
     """Authenticates and returns the Google Calendar API service object."""
     creds = None
-    # The file token.json stores the user's access and refresh tokens.
-    # It is created automatically when the authorization flow completes for the first time.
     token_path = os.path.join(os.path.dirname(__file__), "..", "token.json")
     creds_path = os.path.join(os.path.dirname(__file__), "..", "credentials.json")
 
@@ -64,11 +62,11 @@ async def mock_book_calendar_event(doctor_id: int, patient_id: int, date: str, t
 
         # Create the event payload
         event = {
-            'summary': f'Medical Appointment: Patient #{patient_id} with Doctor #{doctor_id}',
+            'summary': f'Medical Appointment: Patient #{patient_name} with Doctor #{doctor_name}',
             'description': 'Automated booking via Smart Doctor Assistant.',
             'start': {
                 'dateTime': start_dt.isoformat(),
-                'timeZone': 'Asia/Kolkata', # Change this to your local timezone if needed
+                'timeZone': 'Asia/Kolkata', 
             },
             'end': {
                 'dateTime': end_dt.isoformat(),
@@ -81,6 +79,10 @@ async def mock_book_calendar_event(doctor_id: int, patient_id: int, date: str, t
                     {'method': 'popup', 'minutes': 30},
                 ],
             },
+            'attendees': [
+                {'email': patient_email},       
+                {'email': doctor_email}        
+            ],
         }
 
         # Insert the event into the primary calendar of the authenticated user

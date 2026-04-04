@@ -14,8 +14,8 @@ api.interceptors.response.use(
   (err) => {
     if (err.response?.status === 401) {
       // FIXED: Use the new keys
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
       window.location.href = '/login';
     }
     return Promise.reject(err);
@@ -37,7 +37,7 @@ const getFriendlyError = (error, fallbackMessage) => {
 // ---------------- AUTH HEADER ----------------
 export function getAuthHeader() {
   // FIXED: Look for 'token' instead of 'mcp_token'
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
