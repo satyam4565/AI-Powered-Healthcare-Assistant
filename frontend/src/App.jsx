@@ -57,7 +57,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen font-sans bg-slate-950 text-slate-100 flex flex-col p-4 md:p-6 lg:p-8 overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black">
+    <div className="min-h-screen font-sans bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col p-4 md:p-6 lg:p-8 overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-50 via-slate-50 to-white dark:from-slate-900 dark:via-slate-950 dark:to-black">
       <Routes>
         <Route path="/login" element={
           <PublicRoute>
@@ -67,7 +67,7 @@ function App() {
         
         <Route path="/dashboard" element={
           <ProtectedRoute>
-            <div className="max-w-7xl mx-auto w-full flex flex-col h-full bg-slate-900/40 backdrop-blur-3xl border border-white/5 rounded-[2rem] p-6 shadow-2xl relative overflow-hidden">
+            <div className="max-w-7xl mx-auto w-full flex flex-col h-full bg-white/80 dark:bg-slate-900/40 backdrop-blur-3xl border border-slate-200 dark:border-white/5 rounded-[2rem] p-6 shadow-2xl relative overflow-hidden">
               {/* Background Glowing Effects */}
               <div className="absolute top-0 -left-64 w-96 h-96 bg-indigo-600/10 rounded-full blur-[100px] pointer-events-none" />
               <div className="absolute bottom-0 -right-64 w-96 h-96 bg-purple-900/10 rounded-full blur-[100px] pointer-events-none" />

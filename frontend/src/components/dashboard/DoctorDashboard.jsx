@@ -67,7 +67,7 @@ export const DoctorDashboard = ({ data }) => {
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-6">
       <div className="flex items-center justify-between mt-2">
-        <h2 className="text-2xl font-bold text-white">Command Center</h2>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Command Center</h2>
         <div className="flex items-center gap-4">
           {/* AI Summary Button */}
           <Button
@@ -90,13 +90,13 @@ export const DoctorDashboard = ({ data }) => {
       {/* Top Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <motion.div variants={itemVariants}>
-          <Card className="p-6 bg-indigo-900/10 border-indigo-500/20">
+          <Card className="p-6 bg-indigo-50 dark:bg-indigo-900/10 border-indigo-200 dark:border-indigo-500/20">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-slate-400 text-sm font-medium mb-1 uppercase tracking-wider">Today's Patients</p>
-                <h3 className="text-4xl font-bold text-white">{stats.today_patients}</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1 uppercase tracking-wider">Today's Patients</p>
+                <h3 className="text-4xl font-bold text-indigo-900 dark:text-white">{stats.today_patients}</h3>
               </div>
-              <div className="p-3 bg-indigo-500/20 text-indigo-400 rounded-xl">
+              <div className="p-3 bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-xl">
                 <Users size={24} />
               </div>
             </div>
@@ -105,13 +105,13 @@ export const DoctorDashboard = ({ data }) => {
         
         {/* CHANGED: Success Rate replaced with Upcoming This Week */}
         <motion.div variants={itemVariants}>
-          <Card className="p-6 bg-purple-900/10 border-purple-500/20">
+          <Card className="p-6 bg-purple-50 dark:bg-purple-900/10 border-purple-200 dark:border-purple-500/20">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-slate-400 text-sm font-medium mb-1 uppercase tracking-wider">Upcoming This Week</p>
-                <h3 className="text-4xl font-bold text-white">{futureAppointments.length}</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1 uppercase tracking-wider">Upcoming This Week</p>
+                <h3 className="text-4xl font-bold text-purple-900 dark:text-white">{futureAppointments.length}</h3>
               </div>
-              <div className="p-3 bg-purple-500/20 text-purple-400 rounded-xl">
+              <div className="p-3 bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 rounded-xl">
                 <Calendar size={24} />
               </div>
             </div>
@@ -129,11 +129,11 @@ export const DoctorDashboard = ({ data }) => {
           {/* Bio Editor */}
           <motion.div variants={itemVariants}>
             <Card className="p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Doctor Bio</h3>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Doctor Bio</h3>
               <textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                className="w-full bg-slate-900/50 border border-slate-700/50 text-slate-200 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 min-h-[120px] resize-none"
+                className="w-full bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 text-slate-800 dark:text-slate-200 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 min-h-[120px] resize-none"
                 placeholder="Write your professional bio here..."
               />
               <div className="flex justify-end mt-4">
@@ -147,23 +147,23 @@ export const DoctorDashboard = ({ data }) => {
 
         {/* Right Column: Upcoming Appointments Feed */}
         <motion.div variants={itemVariants} className="lg:col-span-1">
-          <Card className="p-6 h-full border-slate-700/50 bg-slate-800/20">
-            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <Activity size={18} className="text-indigo-400" />
+          <Card className="p-6 h-full border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/20">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <Activity size={18} className="text-indigo-500 dark:text-indigo-400" />
               Upcoming Appointments
             </h3>
             <div className="space-y-3">
               {futureAppointments.length === 0 ? (
                 <div className="text-center py-10 px-4">
-                  <p className="text-slate-400 text-sm">No upcoming appointments scheduled.</p>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm">No upcoming appointments scheduled.</p>
                 </div>
               ) : (
                 futureAppointments.map((apt) => (
-                  <div key={apt.id} className="bg-slate-900/50 border border-slate-700/50 rounded-xl p-4 transition-all hover:bg-slate-800/80 hover:border-indigo-500/30">
+                  <div key={apt.id} className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 rounded-xl p-4 transition-all hover:bg-slate-50 dark:hover:bg-slate-800/80 hover:border-indigo-300 dark:hover:border-indigo-500/30">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <p className="font-semibold text-slate-100">{apt.patient?.name || apt.patient_name || 'Patient'}</p>
-                        <p className="text-xs text-indigo-400 mt-0.5">
+                        <p className="font-semibold text-slate-800 dark:text-slate-100">{apt.patient?.name || apt.patient_name || 'Patient'}</p>
+                        <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-0.5">
                           {new Date(apt.time).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} @ {new Date(apt.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>
