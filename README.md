@@ -1,6 +1,6 @@
 # MediBridge
 
-An intelligent, full-stack scheduling and reporting assistant built using the **Model Context Protocol (MCP)**. This application demonstrates advanced agentic behavior, allowing an LLM to dynamically discover and invoke tools to manage doctor availability, book appointments, sync with external calendars, and generate real-time analytical reports.
+An intelligent, full-stack scheduling and reporting assistant. This application demonstrates advanced agentic behavior, allowing an LLM to dynamically discover and invoke tools to manage doctor availability, book appointments, sync with external calendars, and generate real-time analytical reports.
 
 ---
 
@@ -28,7 +28,6 @@ An intelligent, full-stack scheduling and reporting assistant built using the **
 - FastAPI (Python)
 - PostgreSQL (Database)
 - SQLAlchemy (Async ORM)
-- FastMCP (Model Context Protocol Server)
 - PyJWT (Authentication)
 
 **External Services:**
