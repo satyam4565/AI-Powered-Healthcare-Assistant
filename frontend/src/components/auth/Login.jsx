@@ -54,29 +54,53 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 font-sans text-slate-100 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black overflow-hidden relative">
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-purple-900/20 rounded-full blur-[120px] pointer-events-none" />
+    <div 
+      className="fixed inset-0 w-full h-full flex flex-col items-center justify-center p-4 font-sans text-slate-100 z-50 overflow-hidden bg-[#050B14]"
+      // UNCOMMENT the line below and add your clean background image to your public folder!
+      // style={{ backgroundImage: "url('/your-clean-network-bg.jpg')", backgroundSize: 'cover', backgroundPosition: 'center' }}
+    >
+      
+      {/* Fallback CSS Glowing effects (You can remove these if you use a real background image) */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-blue-600/20 rounded-[100%] blur-[120px] pointer-events-none transform -rotate-12" />
+      <div className="absolute top-1/2 left-1/4 w-[500px] h-[300px] bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/2 right-1/4 w-[500px] h-[300px] bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none" />
 
+      {/* Floating Background Overlay to darken it slightly so the card pops */}
+      <div className="absolute inset-0 bg-[#050B14]/40 backdrop-blur-[2px]"></div>
+
+      {/* Top Main Logo as seen in the generated design */}
       <motion.div 
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="relative z-10 mb-8 mt-[-40px]"
+      >
+        <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white drop-shadow-lg">
+          <span className="text-blue-400">Medi</span>Bridge
+        </h1>
+      </motion.div>
+
+      {/* Login Card */}
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
         animate={{ 
           opacity: 1, 
-          y: 0,
+          scale: 1,
           x: error ? [-10, 10, -5, 5, 0] : 0 
         }}
         transition={{ duration: 0.4 }}
-        className="w-full max-w-md bg-slate-900/40 backdrop-blur-2xl rounded-3xl border border-white/10 p-8 shadow-[0_0_40px_rgba(0,0,0,0.5)] relative z-10"
+        className="w-full max-w-[420px] bg-[#1E232E]/95 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10"
       >
-        <div className="text-center mb-8 relative">
+        <div className="text-center mb-8 relative flex flex-col items-center">
           <motion.div 
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
-            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/30 mb-5"
+            className="inline-flex items-center justify-center mb-4"
           >
-            <Stethoscope size={32} />
+            {/* Outline icon matching the mockup */}
+            <Stethoscope size={42} className="text-slate-200" strokeWidth={1.5} />
           </motion.div>
-          <h2 className="text-3xl font-bold tracking-tight text-white mb-2">Smart Assistant</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-white mb-2">MediBridge</h2>
           <p className="text-slate-400 text-sm">
             {isLogin ? 'Welcome back. Please enter your details.' : 'Create your account to get started.'}
           </p>
@@ -107,6 +131,7 @@ export default function Login() {
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  className="bg-[#151921] border-slate-700/50 text-white placeholder:text-slate-500"
                 />
               </motion.div>
             )}
@@ -119,6 +144,7 @@ export default function Login() {
             required
             value={formData.email}
             onChange={(e) => setFormData({...formData, email: e.target.value})}
+            className="bg-[#151921] border-slate-700/50 text-white placeholder:text-slate-500"
           />
 
           <Input
@@ -128,6 +154,7 @@ export default function Login() {
             required
             value={formData.password}
             onChange={(e) => setFormData({...formData, password: e.target.value})}
+            className="bg-[#151921] border-slate-700/50 text-white placeholder:text-slate-500"
           />
 
           <AnimatePresence>
@@ -145,22 +172,22 @@ export default function Login() {
 
           <Button
             type="submit"
-            className="w-full mt-2"
+            className="w-full mt-4 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2.5 rounded-lg transition-colors"
             isLoading={isLoading}
           >
             {isLogin ? 'Sign In' : 'Create Account'}
-            {!isLoading && <ArrowRight size={18} />}
+            {!isLoading && <ArrowRight size={18} className="ml-2 inline-block" />}
           </Button>
         </form>
 
-        <p className="text-center text-slate-400 text-sm mt-8">
+        <p className="text-center text-slate-400 text-[13px] mt-8">
           {isLogin ? "Don't have an account? " : "Already have an account? "}
           <button 
             onClick={() => {
               setIsLogin(!isLogin);
               setError('');
             }} 
-            className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
+            className="text-blue-400 hover:text-blue-300 hover:underline transition-colors"
           >
             {isLogin ? 'Sign up' : 'Log in'}
           </button>

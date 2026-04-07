@@ -31,11 +31,20 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     sessionStorage.removeItem('user');
     sessionStorage.removeItem('token');
-    sessionStorage.removeItem('chat_session'); // Clear AI memory on logout
+    sessionStorage.removeItem('chat_session');
+  };
+
+  // Merges partial updates into the user object and persists to sessionStorage
+  const updateUser = (updatedFields) => {
+    setUser(prev => {
+      const merged = { ...prev, ...updatedFields };
+      sessionStorage.setItem('user', JSON.stringify(merged));
+      return merged;
+    });
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, token, login, logout, loading, updateUser }}>
       {!loading && children}
     </AuthContext.Provider>
   );
