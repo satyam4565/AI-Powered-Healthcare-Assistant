@@ -1,19 +1,29 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, User, Eye, EyeOff, ArrowRight, ShieldCheck } from 'lucide-react'; 
+import { ShieldCheck, Lock, Eye, EyeOff } from 'lucide-react'; 
 import { useAuth } from '../../context/AuthContext';
-import { Button } from '../ui/Button';
-import { Input } from '../ui/Input';
-import { SegmentedControl } from '../ui/SegmentedControl';
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState('patient');
+  const [role, setRole] = useState('patient'); // 'patient' or 'doctor'
   const [formData, setFormData] = useState({ name: '', email: '', password: '', specialization: 'General' });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
+
+  // --- OAuth Handlers ---
+  const handleGoogleSignIn = () => {
+    // Redirect to your backend Google OAuth endpoint
+    // window.location.href = 'http://localhost:8000/api/auth/google';
+    console.log("Initiating Google Sign-In...");
+  };
+
+  const handleAppleSignIn = () => {
+    // Redirect to your backend Apple OAuth endpoint
+    // window.location.href = 'http://localhost:8000/api/auth/apple';
+    console.log("Initiating Apple Sign-In...");
+  };
 
   // --- Validation Logic ---
   const validateForm = () => {
@@ -22,7 +32,6 @@ export default function Login() {
       return false;
     }
     
-    // Basic email format check
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       setError('Please enter a valid email address.');
@@ -47,12 +56,13 @@ export default function Login() {
     e.preventDefault();
     setError('');
     
-    // Run frontend validation before hitting the server
     if (!validateForm()) return;
 
     setIsLoading(true);
 
     const endpoint = isLogin ? '/api/auth/login' : '/api/auth/signup';
+    
+    // Role is naturally included in the signup payload here
     const payload = isLogin
       ? { email: formData.email, password: formData.password }
       : { ...formData, role };
@@ -86,51 +96,76 @@ export default function Login() {
   };
 
   return (
-    <div
-      className="fixed inset-0 flex items-center justify-center p-4 font-sans text-white selection:bg-blue-500/30 overflow-hidden"
-      style={{
-        backgroundImage: "url('/MediBridgeBg.jpeg')", 
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }}
-    >
-      {/* Enhanced Dark Overlay */}
-      <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px]"></div>
+    <div className="min-h-screen flex items-center justify-center bg-[#f4f7fb] relative font-sans text-slate-900 p-4 selection:bg-blue-200 overflow-hidden">
+      
+      {/* Background ambient gradients */}
+      <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-blue-100/50 rounded-full blur-[100px] pointer-events-none"></div>
+      <div className="absolute bottom-[-10%] left-[-5%] w-[600px] h-[600px] bg-indigo-50/50 rounded-full blur-[100px] pointer-events-none"></div>
 
-      {/* Decorative Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none"></div>
+      {/* --- Top Navigation --- */}
+      <div className="absolute top-0 left-0 w-full px-6 sm:px-10 py-8 flex justify-between items-center z-20">
+        <div className="flex items-center gap-4">
+          <img src="/logo.png" alt="MediBridge" className="h-14 sm:h-16 w-auto object-contain drop-shadow-sm" />
+        </div>
+        <div className="hidden sm:flex gap-8 text-[15px] font-medium text-slate-600">
+          <a href="#" className="hover:text-slate-900 transition-colors">Support</a>
+          <a href="#" className="hover:text-slate-900 transition-colors">Privacy Policy</a>
+        </div>
+      </div>
 
-      {/* Login Card */}
+      {/* --- Main Login Card --- */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        initial={{ opacity: 0, scale: 0.97, y: 10 }}
         animate={{
           opacity: 1,
           scale: 1,
           y: 0,
-          x: error ? [-8, 8, -5, 5, 0] : 0 // Shake animation on error
+          x: error ? [-5, 5, -3, 3, 0] : 0 
         }}
-        transition={{ duration: 0.4, type: "spring", stiffness: 100 }}
-        className="relative z-10 w-full max-w-[420px] bg-[#111622]/90 backdrop-blur-xl rounded-3xl border border-slate-700/50 p-8 sm:p-10 shadow-2xl shadow-black/50"
+        transition={{ duration: 0.5, type: "spring", stiffness: 120 }}
+        className="relative z-10 w-full max-w-[440px] bg-white rounded-[2rem] p-8 sm:p-10 shadow-[0_8px_40px_rgba(0,0,0,0.04)] border border-white/60"
       >
-        {/* Brand Header */}
-        <div className="text-center mb-10">
-          <motion.div 
-            initial={{ scale: 0.8, rotate: -10 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
-            className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500/20 to-indigo-600/20 rounded-2xl flex items-center justify-center border border-blue-500/30 shadow-[0_0_30px_rgba(59,130,246,0.3)]"
-          >
-            <img src="/favicon.png" alt="Logo" className="w-10 h-10 object-contain" />
-          </motion.div>
-          <img 
-            src="/logotext.png" 
-            alt="MediBridge" 
-            className="h-7 mx-auto mb-3 object-contain"
-          />
-          <p className="text-slate-400 text-sm font-medium">
-            {isLogin ? 'Welcome back to your dashboard' : 'Join the secure medical network'}
+        <div className="text-center mb-8">
+          <h1 className="text-[28px] font-bold text-slate-900 mb-1.5">
+            {isLogin ? 'Welcome Back' : 'Create Account'}
+          </h1>
+          <p className="text-slate-500 text-[15px] font-medium">
+            {isLogin ? 'Clinical workspace for verified practitioners' : 'Join the secure medical network'}
           </p>
+        </div>
+
+        {/* OAuth Buttons */}
+        <div className="space-y-3 mb-7">
+          <button 
+            type="button" 
+            onClick={handleGoogleSignIn}
+            className="w-full flex items-center justify-center gap-3 border border-slate-200 rounded-xl py-3 text-[14px] font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512" className="w-[18px] h-[18px]">
+              <path fill="#4285F4" d="M486.25 256.45c0-17.35-1.55-34.1-4.45-50.45H244v95.45h135.9c-5.85 30.9-23.35 57.1-48.45 74.65v61.95h78.45c45.95-42.3 76.35-104.7 76.35-181.6z"/>
+              <path fill="#34A853" d="M244 504c68.1 0 125.3-22.5 167.1-61.05l-78.45-61.95c-22.65 15.2-51.6 24.2-88.65 24.2-68.1 0-125.8-46.05-146.4-107.95H17.75v63.75C59.45 444 144.5 504 244 504z"/>
+              <path fill="#FBBC05" d="M97.6 302.25c-5.3-15.8-8.25-32.6-8.25-49.8s2.95-34 8.25-49.8v-63.75H17.75C6.45 174.6 0 214.2 0 256.45s6.45 81.85 17.75 117.55l79.85-61.75z"/>
+              <path fill="#EA4335" d="M244 100.8c37.1 0 70.4 12.8 96.8 38.05l72.6-72.6C369.3 26.15 312.1 0 244 0 144.5 0 59.45 60 17.75 143.05l79.85 63.75C118.2 144.85 175.9 100.8 244 100.8z"/>
+            </svg>
+            Sign in with Google
+          </button>
+          <button 
+            type="button" 
+            onClick={handleAppleSignIn}
+            className="w-full flex items-center justify-center gap-3 bg-[#18181b] text-white rounded-xl py-3 text-[14px] font-semibold hover:bg-black transition-colors shadow-sm"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" className="w-[18px] h-[18px] fill-current">
+              <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+            </svg>
+            Sign in with Apple
+          </button>
+        </div>
+
+        {/* Divider */}
+        <div className="flex items-center gap-4 mb-7">
+          <div className="flex-1 h-[1px] bg-slate-200"></div>
+          <span className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">Or secure email</span>
+          <div className="flex-1 h-[1px] bg-slate-200"></div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -138,70 +173,96 @@ export default function Login() {
             {!isLogin && (
               <motion.div 
                 key="signup-fields"
-                initial={{ opacity: 0, height: 0, filter: 'blur(10px)' }} 
-                animate={{ opacity: 1, height: 'auto', filter: 'blur(0px)' }}
-                exit={{ opacity: 0, height: 0, filter: 'blur(10px)' }}
-                transition={{ duration: 0.3 }}
+                initial={{ opacity: 0, height: 0 }} 
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
                 className="space-y-5 overflow-hidden"
               >
-                <div className="bg-slate-900/50 p-1.5 rounded-xl border border-slate-800">
-                  <SegmentedControl
-                    options={[
-                      { label: 'Patient', value: 'patient' },
-                      { label: 'Doctor', value: 'doctor' }
-                    ]}
-                    selected={role}
-                    onChange={setRole}
+                {/* Custom Role Selector Toggle */}
+                <div className="flex p-1 bg-[#f4f5f7] rounded-xl">
+                  <button
+                    type="button"
+                    onClick={() => setRole('patient')}
+                    className={`flex-1 py-2 text-[13px] font-semibold rounded-lg transition-all ${
+                      role === 'patient'
+                        ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
+                        : 'text-slate-500 hover:text-slate-700'
+                    }`}
+                  >
+                    Patient
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRole('doctor')}
+                    className={`flex-1 py-2 text-[13px] font-semibold rounded-lg transition-all ${
+                      role === 'doctor'
+                        ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
+                        : 'text-slate-500 hover:text-slate-700'
+                    }`}
+                  >
+                    Doctor
+                  </button>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Dr. John Smith"
+                    value={formData.name}
+                    onChange={(e) => { setError(''); setFormData({ ...formData, name: e.target.value }); }}
+                    className="w-full bg-[#f4f5f7] border-transparent focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl h-[46px] px-4 text-[15px] transition-all outline-none"
                   />
                 </div>
-                <Input
-                  icon={User}
-                  placeholder="Full Name"
-                  required
-                  value={formData.name}
-                  onChange={(e) => {
-                    setError('');
-                    setFormData({ ...formData, name: e.target.value });
-                  }}
-                  className="bg-slate-900/50 border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50"
-                />
               </motion.div>
             )}
           </AnimatePresence>
 
-          <Input
-            icon={Mail}
-            type="email"
-            placeholder="Email Address"
-            required
-            value={formData.email}
-            onChange={(e) => {
-              setError('');
-              setFormData({ ...formData, email: e.target.value });
-            }}
-            className="bg-slate-900/50 border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-all"
-          />
-
-          <div className="relative group">
-            <Input
-              icon={Lock}
-              type={showPassword ? "text" : "password"}
-              placeholder="Password"
+          <div>
+            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+              Email Address
+            </label>
+            <input
+              type="email"
               required
-              value={formData.password}
-              onChange={(e) => {
-                setError('');
-                setFormData({ ...formData, password: e.target.value });
-              }}
-              className="bg-slate-900/50 border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 pr-12 transition-all"
+              placeholder="dr.smith@medibridge.com"
+              value={formData.email}
+              onChange={(e) => { setError(''); setFormData({ ...formData, email: e.target.value }); }}
+              className="w-full bg-[#f4f5f7] border-2 border-transparent focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl h-[46px] px-4 text-[15px] placeholder:text-slate-400 transition-all outline-none"
             />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-blue-400 transition-colors focus:outline-none"
-            >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                Password
+              </label>
+              {isLogin && (
+                <a href="#" className="text-[12px] font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+                  Forgot Password?
+                </a>
+              )}
+            </div>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={(e) => { setError(''); setFormData({ ...formData, password: e.target.value }); }}
+                className="w-full bg-[#f4f5f7] border-2 border-transparent focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-xl h-[46px] px-4 pr-12 text-[15px] placeholder:text-slate-400 tracking-widest transition-all outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors focus:outline-none"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
           <AnimatePresence>
@@ -209,54 +270,56 @@ export default function Login() {
               <motion.div 
                 initial={{ opacity: 0, y: -10 }} 
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 text-red-400 text-xs py-3 px-4 rounded-xl"
+                exit={{ opacity: 0, height: 0 }}
+                className="text-red-500 text-sm text-center font-medium bg-red-50 p-3 rounded-lg"
               >
-                <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></div>
                 {error}
               </motion.div>
             )}
           </AnimatePresence>
 
-          <Button 
+          <button 
             type="submit" 
             disabled={isLoading}
-            className="w-full h-12 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_25px_rgba(37,99,235,0.5)] transition-all active:scale-[0.98] mt-2 group relative overflow-hidden"
+            className="w-full h-[52px] bg-[#3b59df] hover:bg-[#2f4bc5] text-white rounded-xl font-semibold text-[15px] shadow-[0_8px_20px_rgba(59,89,223,0.25)] transition-all active:scale-[0.98] mt-2 flex items-center justify-center disabled:opacity-70"
           >
-            {/* Shimmer Effect */}
-            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:animate-shimmer"></div>
-            
-            <span className="relative flex items-center justify-center gap-2">
-              {isLoading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  Processing...
-                </>
-              ) : (
-                <>
-                  {isLogin ? 'Sign In Securely' : 'Create Account'}
-                  {isLogin ? <ShieldCheck size={18} className="opacity-80" /> : <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />}
-                </>
-              )}
-            </span>
-          </Button>
+            {isLoading ? (
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            ) : (
+              isLogin ? 'Enter App' : 'Create Account'
+            )}
+          </button>
         </form>
 
-        <div className="mt-8 pt-6 border-t border-slate-800 text-center">
-          <p className="text-slate-400 text-sm">
-            {isLogin ? "Don't have an account?" : "Already a member?"}
+        <div className="mt-8 text-center">
+          <p className="text-slate-500 text-[14px]">
+            {isLogin ? "New to MediBridge?" : "Already a member?"}
             <button
-              onClick={() => {
-                setIsLogin(!isLogin);
-                setError(''); 
-              }}
-              className="text-blue-400 font-semibold ml-2 hover:text-blue-300 hover:underline decoration-2 underline-offset-4 transition-all"
+              onClick={() => { setIsLogin(!isLogin); setError(''); }}
+              className="text-blue-600 font-semibold ml-1.5 hover:text-blue-800 transition-colors"
             >
-              {isLogin ? 'Sign up now' : 'Login here'}
+              {isLogin ? 'Create an account' : 'Sign in'}
             </button>
           </p>
         </div>
       </motion.div>
+
+      {/* --- Bottom Footer --- */}
+      <div className="absolute bottom-0 left-0 w-full px-8 py-8 flex flex-col md:flex-row justify-between items-center gap-6 z-20">
+        
+        {/* Copyright */}
+        <div className="text-[10px] font-bold tracking-widest text-slate-500 uppercase order-3 md:order-1">
+          © 2026 MEDIBRIDGE. THE ETHEREAL CLINIC FRAMEWORK.
+        </div>
+
+        {/* Bottom Links */}
+        <div className="flex gap-6 text-[10px] font-bold tracking-widest text-slate-500 uppercase order-2 md:order-3">
+          <a href="#" className="hover:text-slate-800 transition-colors">Privacy</a>
+          <a href="#" className="hover:text-slate-800 transition-colors">Terms</a>
+          <a href="#" className="hover:text-slate-800 transition-colors">Security</a>
+        </div>
+        
+      </div>
     </div>
   );
 }
